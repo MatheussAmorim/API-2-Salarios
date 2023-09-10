@@ -7,18 +7,17 @@ class ReajusteSalario {
     Long id
     LocalDate dataReajuste
     BigDecimal valorSalario
-    Funcionario funcionario
-
-    static mapping = {
-        id generator: 'sequence', params: [sequence: 'SEQ_REAJUSTE_SALARIO']
-        version false
-    }
 
     static belongsTo = [funcionario: Funcionario]
 
+    static mapping = {
+        id generator: "increment"
+        version false
+    }
+
     static constraints = {
         dataReajuste nullable: false
-        valorSalario nullable: false
+        valorSalario nullable: false, precision: 6, scale: 2
         funcionario nullable: false
     }
 }

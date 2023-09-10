@@ -7,11 +7,11 @@ class Cidade {
 
 
     static mapping = {
-        id generator: 'sequence', params: [sequence: 'SEQ_CIDADE']
+        id generator: "increment"
         version false
     }
 
     static constraints = {
-        nome nullable: false, blank: false, maxSize: 50
+        nome nullable: false, maxSize: 50
     }
 }
