@@ -1,18 +1,88 @@
 package api2
 
-import grails.gorm.services.Service
+import grails.gorm.transactions.Transactional
+import grails.web.api.ServletAttributes
+import javassist.NotFoundException
 
-@Service(ReajusteSalario)
-interface ReajusteSalarioService {
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-    ReajusteSalario get(Serializable id)
+@Transactional
+class ReajusteSalarioService implements ServletAttributes {
 
-    List<ReajusteSalario> list(Map args)
+    Map save() {
+        Map retorno = [:]
 
-    Long count()
+        Funcionario funcionario = Funcionario.get(request.JSON.idFuncionario)
 
-    ReajusteSalario delete(Serializable id)
+        if (!funcionario) {
+            throw new NotFoundException("Funcionario nao encontrado")
+        }
 
-    ReajusteSalario save(ReajusteSalario reajusteSalario)
+        ReajusteSalario reajusteSalario = new ReajusteSalario()
+        reajusteSalario.setDataReajuste(getLocalDateByParameter(request.JSON.dataReajuste))
+        reajusteSalario.setValorSalario(request.JSON.valorSalario as BigDecimal)
+        reajusteSalario.setFuncionario(funcionario)
+        reajusteSalario.save(flush: true)
+
+        retorno.success = true
+        retorno.registro = getShowRecord(reajusteSalario)
+
+        return retorno
+    }
+
+    protected LocalDate getLocalDateByParameter(String parameter) {
+        return LocalDate.parse(parameter, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    }
+
+    protected Map getShowRecord(ReajusteSalario reajusteSalario) {
+        return [
+                id          : reajusteSalario.id,
+                dataReajuste: reajusteSalario.dataReajuste.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                valorSalario: reajusteSalario.valorSalario,
+                funcionario : [
+                        id: reajusteSalario.funcionario.id,
+                        nome: reajusteSalario.funcionario.nome
+                ]
+        ]
+    }
+
+    Map list() {
+        Map retorno = [:]
+
+        List<ReajusteSalario> reajusteSalarioList = ReajusteSalario.findAll()
+
+        retorno.total = reajusteSalarioList.size()
+        retorno.registros = []
+
+        reajusteSalarioList.each {
+            retorno.registros << getShowRecord(it)
+        }
+
+        return retorno
+    }
+
+    Map update() {
+        Map retorno = [:]
+
+        Long id = params.long("id")
+
+        Funcionario funcionario = Funcionario.get(request.JSON.idFuncionario)
+
+        if (!funcionario) {
+            throw new NotFoundException("Funcioanrio nao encontrado para ${request.JSON.idFuncionario}")
+        }
+
+        ReajusteSalario record = ReajusteSalario.findById(id)
+        record.setFuncionario(Funcionario.get(request.JSON.idFuncionario))
+        record.setDataReajuste(getLocalDateByParameter(request.JSON.dataReajuste))
+        record.setValorSalario(request.JSON.valorSalario.replace(",", ".") as BigDecimal)
+        record.save(flush: true)
+
+        retorno.success = true
+        retorno.registro = getShowRecord(record)
+
+        return retorno
+    }
 
 }

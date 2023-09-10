@@ -1,97 +1,46 @@
 package api2
 
-import grails.validation.ValidationException
-import static org.springframework.http.HttpStatus.CREATED
-import static org.springframework.http.HttpStatus.NOT_FOUND
-import static org.springframework.http.HttpStatus.NO_CONTENT
-import static org.springframework.http.HttpStatus.OK
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
+import commands.CidadeCommand
+import traits.ExceptionHandlers
 
-import grails.gorm.transactions.ReadOnly
-import grails.gorm.transactions.Transactional
 
-@ReadOnly
-class CidadeController {
+class CidadeController implements ExceptionHandlers {
+
+    static responseFormats = ["json"]
+    static defaultAction = "get"
+    static allowedMethods = [
+            save: "POST",
+            list: "GET",
+            update: "PUT",
+            delete: "DELETE",
+            get: "GET"
+    ]
 
     CidadeService cidadeService
 
-    def list(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond cidadeService.list(params)
+    def save(CidadeCommand command) {
+        Map retorno = cidadeService.save(command)
+        respond(retorno)
     }
 
-    def get(Long id) {
-        def cidade = cidadeService.get(id)
-        if (!cidade) {
-            render status: NOT_FOUND
-            return
-        }
-        respond cidade, [status: OK, view: "show"]
+    def list() {
+        Map retorno = cidadeService.list()
+        respond(retorno)
     }
 
-    @Transactional
-    def save() {
-        if (request.contentType != 'application/json' || request.method != 'POST') {
-            render status: UNPROCESSABLE_ENTITY
-            return
-        }
-
-        def cidade = new Cidade(request.JSON)
-
-        if (cidade.hasErrors()) {
-            transactionStatus.setRollbackOnly()
-            respond cidade.errors, [status: UNPROCESSABLE_ENTITY]
-            return
-        }
-
-        try {
-            cidadeService.save(cidade)
-        } catch (ValidationException e) {
-            respond cidade.errors, [status: UNPROCESSABLE_ENTITY]
-            return
-        }
-        respond cidade, [status: CREATED, view: "show"]
+    def update(CidadeCommand command) {
+        Map retorno = cidadeService.update(command)
+        respond(retorno)
     }
 
-    @Transactional
-    def update(Long id) {
-        if (request.contentType != 'application/json' || request.method != 'PUT') {
-            render status: UNPROCESSABLE_ENTITY
-            return
-        }
-
-        def cidade = cidadeService.get(id)
-        if (!cidade) {
-            render status: NOT_FOUND
-            return
-        }
-
-        cidade.properties = request.JSON
-
-        if (cidade.hasErrors()) {
-            transactionStatus.setRollbackOnly()
-            respond cidade.errors, [status: UNPROCESSABLE_ENTITY]
-            return
-        }
-
-        cidadeService.save(cidade)
-        respond cidade, [status: OK, view: "show"]
-    }
-
-    @Transactional
     def delete(Long id) {
-        if (request.method != 'DELETE') {
-            render status: UNPROCESSABLE_ENTITY
-            return
-        }
-
-        def cidade = cidadeService.get(id)
-        if (!cidade) {
-            render status: NOT_FOUND
-            return
-        }
-
-        cidadeService.delete(id)
-        render status: NO_CONTENT
+        Map retorno = cidadeService.delete(id)
+        respond(retorno)
     }
+
+    def get() {
+        Cidade retorno = cidadeService.get()
+        respond(retorno)
+    }
+
 }
