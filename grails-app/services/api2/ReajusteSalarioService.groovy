@@ -3,6 +3,7 @@ package api2
 import grails.gorm.transactions.Transactional
 import grails.web.api.ServletAttributes
 import javassist.NotFoundException
+import org.springframework.dao.DataIntegrityViolationException
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -81,6 +82,36 @@ class ReajusteSalarioService implements ServletAttributes {
 
         retorno.success = true
         retorno.registro = getShowRecord(record)
+
+        return retorno
+    }
+
+    Map get(Long id) {
+        Map retorno = [success: true]
+
+        ReajusteSalario reajusteSalario = ReajusteSalario.get(id)
+
+        retorno.registro = getShowRecord(reajusteSalario)
+
+        return retorno
+    }
+
+    Map delete(Long id) {
+        Map retorno = [success: true]
+
+        ReajusteSalario reajusteSalario = ReajusteSalario.findById(id)
+
+        if (reajusteSalario) {
+            try {
+                reajusteSalario.delete(flush: true)
+            } catch (DataIntegrityViolationException e) {
+                retorno.success = false
+                retorno.message = "Registro associado para um funcionario."
+                retorno.error = e.getMessage()
+            }
+        } else {
+            throw new NotFoundException("Não encontrada reajuste salario para ${id}")
+        }
 
         return retorno
     }

@@ -33,4 +33,15 @@ class ReajusteSalarioController implements ExceptionHandlers {
         respond(retorno)
     }
 
+    def get(long id) {
+        Map retorno = reajusteSalarioService.get(id)
+        respond(retorno)
+    }
+
+    def delete(long id) {
+        Map retorno = reajusteSalarioService.delete(id)
+        respond(retorno)
+    }
+
+
 }
