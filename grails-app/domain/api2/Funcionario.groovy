@@ -2,8 +2,6 @@ package api2
 
 class Funcionario {
 
-
-    Long id
     String nome
 
     static belongsTo = [cidade: Cidade]

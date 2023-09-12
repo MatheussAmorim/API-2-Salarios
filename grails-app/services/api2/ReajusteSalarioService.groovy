@@ -12,9 +12,9 @@ import java.time.format.DateTimeFormatter
 class ReajusteSalarioService implements ServletAttributes {
 
     Map save() {
-        Map retorno = [:]
+        Map retorno = [success: true]
 
-        Funcionario funcionario = Funcionario.get(request.JSON.idFuncionario)
+        Funcionario funcionario = Funcionario.get(request.JSON.funcionarioId)
 
         if (!funcionario) {
             throw new NotFoundException("Funcionario nao encontrado")
@@ -23,7 +23,7 @@ class ReajusteSalarioService implements ServletAttributes {
         ReajusteSalario reajusteSalario = new ReajusteSalario()
         reajusteSalario.setDataReajuste(getLocalDateByParameter(request.JSON.dataReajuste))
         reajusteSalario.setValorSalario(request.JSON.valorSalario as BigDecimal)
-        reajusteSalario.setFuncionario(funcionario)
+        reajusteSalario.setFuncionario(Funcionario.get(request.JSON.funcionarioId))
         reajusteSalario.save(flush: true)
 
         retorno.success = true

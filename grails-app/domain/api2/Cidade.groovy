@@ -2,7 +2,6 @@ package api2
 
 class Cidade {
 
-    Long id
     String nome
 
 

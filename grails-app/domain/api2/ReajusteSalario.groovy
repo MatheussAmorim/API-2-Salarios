@@ -4,7 +4,6 @@ import java.time.LocalDate
 
 class ReajusteSalario {
 
-    Long id
     LocalDate dataReajuste
     BigDecimal valorSalario
 
