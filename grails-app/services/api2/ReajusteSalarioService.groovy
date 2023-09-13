@@ -49,7 +49,7 @@ class ReajusteSalarioService implements ServletAttributes {
     }
 
     Map list() {
-        Map retorno = [:]
+        Map retorno = [success: true]
 
         List<ReajusteSalario> reajusteSalarioList = ReajusteSalario.findAll()
 
@@ -68,10 +68,10 @@ class ReajusteSalarioService implements ServletAttributes {
 
         Long id = params.long("id")
 
-        Funcionario funcionario = Funcionario.get(request.JSON.funcionarioId)
+        Funcionario funcionario = Funcionario.get(request.JSON.idFuncionario)
 
         if (!funcionario) {
-            throw new NotFoundException("Funcionario nao encontrado para ${request.JSON.idFuncionario}")
+            throw new NotFoundException("Funcioanrio nao encontrado para ${request.JSON.idFuncionario}")
         }
 
         ReajusteSalario record = ReajusteSalario.findById(id)

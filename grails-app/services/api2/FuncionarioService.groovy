@@ -44,9 +44,9 @@ class FuncionarioService implements ServletAttributes {
     Map update() {
         Map retorno = [success: true]
 
-        Funcionario funcionario = Funcionario.createCriteria().get {
+        Funcionario funcionario = Funcionario.createCriteria().get( {
             idEq(params.id as Long)
-        }
+        })
 
         funcionario.setNome(request.JSON.nome)
         funcionario.setCidade(Cidade.get(request.JSON.cidadeId))
