@@ -68,14 +68,14 @@ class ReajusteSalarioService implements ServletAttributes {
 
         Long id = params.long("id")
 
-        Funcionario funcionario = Funcionario.get(request.JSON.idFuncionario)
+        Funcionario funcionario = Funcionario.get(request.JSON.funcionarioId)
 
         if (!funcionario) {
-            throw new NotFoundException("Funcioanrio nao encontrado para ${request.JSON.idFuncionario}")
+            throw new NotFoundException("Funcioanrio nao encontrado para ${request.JSON.funcionarioId}")
         }
 
         ReajusteSalario record = ReajusteSalario.findById(id)
-        record.setFuncionario(Funcionario.get(request.JSON.idFuncionario))
+        record.setFuncionario(Funcionario.get(request.JSON.funcionarioId))
         record.setDataReajuste(getLocalDateByParameter(request.JSON.dataReajuste))
         record.setValorSalario(request.JSON.valorSalario.replace(",", ".") as BigDecimal)
         record.save(flush: true)
